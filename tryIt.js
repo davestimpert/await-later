@@ -12,7 +12,7 @@ async function doThing3 () {
   return ['uno', 'dos', 'tres']
 }
 
-async function batchJob () {
+function batchJob () {
   const { awaitLater, resolveAll } = AwaitLater()
 
   awaitLater(doThing1(), 'thing1', { some: 'context' })
