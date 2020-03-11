@@ -13,7 +13,7 @@ async function doThing3 () {
 }
 
 function batchJob () {
-  const { awaitLater, resolveAll } = AwaitLater()
+  const { awaitLater, resolveAll } = AwaitLater({ throwIfAnyReject: true })
 
   awaitLater(doThing1(), 'thing1', { some: 'context' })
   awaitLater(doThing2(), 'thing2')
@@ -22,29 +22,33 @@ function batchJob () {
   return resolveAll()
 }
 
-batchJob().then(results => console.log(JSON.stringify(results, null, '  ')))
+batchJob().then(results => { console.log(JSON.stringify(results, null, '  ')) }).catch(console.error)
 
 /*
 This prints the following:
-[
-  {
-    "ok": true,
-    "value": "thing1 result",
-    "name": "thing1",
-    "some": "context"
-  },
-  {
-    "ok": false,
-    "reason": {},
-    "name": "thing2"
-  },
-  {
-    "ok": true,
-    "value": [
-      "uno",
-      "dos",
-      "tres"
-    ]
-  }
-]
+{
+  "resolved": 2,
+  "rejected": 1,
+  "results": [
+    {
+      "ok": true,
+      "value": "thing1 result",
+      "name": "thing1",
+      "some": "context"
+    },
+    {
+      "ok": false,
+      "reason": {},
+      "name": "thing2"
+    },
+    {
+      "ok": true,
+      "value": [
+        "uno",
+        "dos",
+        "tres"
+      ]
+    }
+  ]
+}
 */

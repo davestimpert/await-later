@@ -2,7 +2,8 @@
 A more robust alternative to Promise.all
 */
 
-function AwaitLater () {
+function AwaitLater (options = {}) {
+  const throwIfAnyReject = options.throwIfAnyReject || false
   const promises = []
 
   function awaitLater (promise, name, context = {}) {
@@ -13,8 +14,8 @@ function AwaitLater () {
     })
   }
 
-  function resolveAll () {
-    return Promise.all(promises.map((promise) => {
+  async function resolveAll () {
+    const results = await Promise.all(promises.map((promise) => {
       return new Promise((resolve) => {
         try {
           promise.promise.then((value) => {
@@ -37,6 +38,19 @@ function AwaitLater () {
         }
       })
     }))
+    let resolved = 0
+    let rejected = 0
+    results.forEach(r => r.ok ? resolved++ : rejected++)
+    if (throwIfAnyReject && rejected) {
+      const err = new Error()
+      err.results = results
+      throw err
+    }
+    return {
+      resolved,
+      rejected,
+      results
+    }
   }
 
   return {
